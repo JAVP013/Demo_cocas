@@ -85,7 +85,7 @@ app.get('/institutos', async (req, res) => {
 });
 
 // Endpoint para insertar un solo instituto
-app.post('/api/v1/institutes', async (req, res) => {
+app.post('/crear', async (req, res) => {
   try {
     const nuevoInstituto = new Institute(req.body);
     await nuevoInstituto.save();
@@ -103,6 +103,64 @@ app.post('/api/v1/institutes', async (req, res) => {
     });
   }
 });
+
+app.put('/actualizar/:id', async (req, res) => {
+  try {
+    const updatedInstitute = await Institute.findOneAndUpdate(
+      { IdInstitutoOK: req.params.id }, // Usamos IdInstitutoOK para la búsqueda
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedInstitute) {
+      return res.status(404).json({
+        success: false,
+        message: 'Instituto no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Instituto actualizado con éxito',
+      data: updatedInstitute
+    });
+  } catch (error) {
+    console.error('Error al actualizar el instituto:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el instituto',
+      error: error.message
+    });
+  }
+});
+
+// Endpoint para buscar un instituto por su IdInstitutoOK
+app.get('/buscar/:id', async (req, res) => {
+  try {
+    const institute = await Institute.findOne({ IdInstitutoOK: req.params.id });
+
+    if (!institute) {
+      return res.status(404).json({
+        success: false,
+        message: 'Instituto no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Instituto encontrado',
+      data: institute
+    });
+  } catch (error) {
+    console.error('Error al buscar el instituto:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al buscar el instituto',
+      error: error.message
+    });
+  }
+});
+
 
 // Iniciar el servidor en el puerto especificado
 app.listen(port, () => {

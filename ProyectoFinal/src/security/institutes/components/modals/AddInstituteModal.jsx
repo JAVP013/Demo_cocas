@@ -13,7 +13,7 @@ import { InstituteValues } from "../../helpers/InstituteValues";
 // Services
 import { AddOneInstitute } from "../services/remote/post/AddOneInstitute";
 
-const AddInstituteModal = ({ AddInstituteShowModal, setAddInstituteShowModal, onInstituteAdded }) => {
+const AddInstituteModal = ({ AddInstituteShowModal, setAddInstituteShowModal, onInstituteAdded ,UpdateTable}) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     const [Loading, setLoading] = useState(false);
@@ -42,22 +42,35 @@ const AddInstituteModal = ({ AddInstituteShowModal, setAddInstituteShowModal, on
             setMensajeExitoAlert(null);
             setLoading(true);
             try {
+                // Validar si el IdInstitutoOK ya existe
+                const response = await fetch(`http://localhost:3000/buscar/${values.IdInstitutoOK}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    setMensajeErrorAlert("El Instituto con el IdInstitutoOK proporcionado ya existe.");
+                    setLoading(false);
+                    return;
+                }
+                
                 const Institute = InstituteValues({
                     ...values,
                     Matriz: values.Matriz ? 'S' : 'N'
                 });
                 await AddOneInstitute(Institute); // Agregar el nuevo instituto
                 setMensajeExitoAlert("Instituto fue creado y guardado Correctamente");
-
+        
                 // Notificar al componente padre que se agregó un instituto
                 if (onInstituteAdded) {
                     onInstituteAdded(); // Llamar la función para actualizar la lista
                 }
+        
+                UpdateTable();
             } catch (e) {
                 setMensajeErrorAlert("No se pudo crear el Instituto");
             }
             setLoading(false);
-        },
+        }
+        ,
     });
 
     const commonTextFieldProps = {
