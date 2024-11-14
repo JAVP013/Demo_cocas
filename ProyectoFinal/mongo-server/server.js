@@ -161,6 +161,33 @@ app.get('/buscar/:id', async (req, res) => {
   }
 });
 
+// Endpoint para eliminar un instituto por su IdInstitutoOK
+app.delete('/eliminar/:id', async (req, res) => {
+  try {
+    // Buscar y eliminar el instituto por IdInstitutoOK
+    const deletedInstitute = await Institute.findOneAndDelete({ IdInstitutoOK: req.params.id });
+
+    if (!deletedInstitute) {
+      return res.status(404).json({
+        success: false,
+        message: 'Instituto no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Instituto eliminado con éxito',
+      data: deletedInstitute
+    });
+  } catch (error) {
+    console.error('Error al eliminar el instituto:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al eliminar el instituto',
+      error: error.message
+    });
+  }
+});
 
 // Iniciar el servidor en el puerto especificado
 app.listen(port, () => {
